@@ -19,10 +19,13 @@
 #result = session_requests.get(login_url)
 
 from selenium import webdriver
+
 import credentials
 import selenium
 import os
 import time
+import pandas as pd
+import re
 from selenium.webdriver.common.keys import Keys
 import json
 from datetime import date, datetime
@@ -44,7 +47,7 @@ membership_check_set = set()
 final_dictionary = {}
 message_count=0
 scroll_pause_time = 1 # You can set your own pause time. My laptop is a bit slow so I use 1 sec
-
+df = pd.DataFrame()
 
 
 
@@ -104,9 +107,46 @@ while True:
 
     for i, message in enumerate(messages):
         if message.text not in membership_check_set:
+            #gets the length of the header, category line
+            first_line = message.text.partition('\n')[0]
+            first_line_list = first_line.split(',')
+
+
+
+
+
+            print(first_line_list)
+            print("First line length")
+            print(len(first_line_list))
+
+
+
+
+            #turn message into a list
+            my_string = message.text
+            string_list = re.split(', |\n|!', message.text)
+            print(string_list)
+
+            #Populate rows of csv with lengths of first line
+
+
+
+
+
+
+
+
+
             membership_check_set.add(message.text)
-            final_dictionary[message_count] = {message.text}
+
             message_count += 1
+
+
+    # determining the name of the file
+    file_name = 'WillsData.xlsx'
+
+    # saving the excel
+    df.to_excel(file_name)
 
     time.sleep(2)
     top_message_element = ".bubble-content-wrapper > .bubble-content > .message"
@@ -133,3 +173,4 @@ print(str(final_dictionary))
 #Helpful links
 #https://stackoverflow.com/questions/39428042/use-selenium-with-chromedriver-on-mac
 #https://medium.com/analytics-vidhya/using-python-and-selenium-to-scrape-infinite-scroll-web-pages-825d12c24ec7
+#https://www.kite.com/python/answers/how-to-fill-a-pandas-dataframe-row-by-row-in-python
