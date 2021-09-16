@@ -26,6 +26,7 @@ import os
 import time
 import pandas as pd
 import re
+import numpy as np
 from selenium.webdriver.common.keys import Keys
 import json
 from datetime import date, datetime
@@ -47,7 +48,7 @@ membership_check_set = set()
 final_dictionary = {}
 message_count=0
 scroll_pause_time = 1 # You can set your own pause time. My laptop is a bit slow so I use 1 sec
-df = pd.DataFrame()
+
 
 
 
@@ -106,10 +107,41 @@ while True:
     time.sleep(2)
 
     for i, message in enumerate(messages):
-        if message.text not in membership_check_set:
+        if message.text not in membership_check_set and len(message.text) > 20:
             #gets the length of the header, category line
             first_line = message.text.partition('\n')[0]
             first_line_list = first_line.split(',')
+            len_first_line = len(first_line_list)
+
+            # turn message into a list
+            my_string = message.text
+            #at this point, it produces a list of each line within the quotes
+            string_list = re.split(', |\n|!', message.text)
+            print("Here is the String List")
+            print(string_list)
+
+            lines_num = len(string_list)
+            print("Here is len of String list:")
+            print(lines_num)
+
+            string_list_indiv=[]
+            for i, line in enumerate(string_list):
+                string_list_indiv += line.split(',')
+
+            print(string_list_indiv)
+
+            "adding Columns to dataframe"
+            #for i,col in enumerate(first_line_list):
+             #   df[col] = string_list_indiv[i+len_first_line]
+            print("TEST LIST SLICE BELOW: ")
+            #removes the elements of the views and the time from the list
+            string_list_indiv.pop()
+            string_list_indiv.pop()
+
+            print(string_list_indiv[len_first_line:])
+
+            df = pd.DataFrame(np.array(string_list_indiv[len_first_line:]).reshape(lines_num-3, len_first_line), columns=first_line_list)
+
 
 
 
@@ -119,15 +151,11 @@ while True:
             print("First line length")
             print(len(first_line_list))
 
+            # determining the name of the file
+            file_name = 'message_'+str(message_count)+'_WillsData.xlsx'
 
-
-
-            #turn message into a list
-            my_string = message.text
-            string_list = re.split(', |\n|!', message.text)
-            print(string_list)
-
-            #Populate rows of csv with lengths of first line
+            # saving the excel
+            df.to_excel(file_name)
 
 
 
@@ -142,11 +170,7 @@ while True:
             message_count += 1
 
 
-    # determining the name of the file
-    file_name = 'WillsData.xlsx'
 
-    # saving the excel
-    df.to_excel(file_name)
 
     time.sleep(2)
     top_message_element = ".bubble-content-wrapper > .bubble-content > .message"
@@ -174,3 +198,4 @@ print(str(final_dictionary))
 #https://stackoverflow.com/questions/39428042/use-selenium-with-chromedriver-on-mac
 #https://medium.com/analytics-vidhya/using-python-and-selenium-to-scrape-infinite-scroll-web-pages-825d12c24ec7
 #https://www.kite.com/python/answers/how-to-fill-a-pandas-dataframe-row-by-row-in-python
+#https://stackoverflow.com/questions/42593104/convert-list-into-a-pandas-data-frame
