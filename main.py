@@ -73,14 +73,14 @@ button = driver.find_element_by_class_name("btn-primary")
 
 # clicking on the button
 button.click()
-time.sleep(2)
+time.sleep(3)
 
 
 code_phone = int(input("Input the code sent to your phone: "))
 input_field_code = driver.find_element_by_xpath("//div[@class='input-field']//input[1]")
 input_field_code.send_keys(code_phone)
 
-time.sleep(4)
+time.sleep(6)
 #michael franco data peer id
 #1015336350
 
@@ -88,7 +88,7 @@ time.sleep(4)
 peer_chat = driver.find_element_by_xpath("//li[@data-peer-id='-1572277888']")
 peer_chat.click()
 
-time.sleep(4)
+time.sleep(6)
 
 
 #check if message a member of set
@@ -108,15 +108,28 @@ while True:
 
     for i, message in enumerate(messages):
         if message.text not in membership_check_set and len(message.text) > 20:
+
+            print("This is message: ")
+            print(message_count)
             #gets the length of the header, category line
             first_line = message.text.partition('\n')[0]
             first_line_list = first_line.split(',')
             len_first_line = len(first_line_list)
 
+            #List SLicing could help here
+            #https://www.geeksforgeeks.org/python-list-slicing/
+
+
             # turn message into a list
             my_string = message.text
+
+
+
             #at this point, it produces a list of each line within the quotes
             string_list = re.split(', |\n|!', message.text)
+
+
+
             print("Here is the String List")
             print(string_list)
 
@@ -130,17 +143,26 @@ while True:
 
             print(string_list_indiv)
 
-            "adding Columns to dataframe"
-            #for i,col in enumerate(first_line_list):
-             #   df[col] = string_list_indiv[i+len_first_line]
+
+
             print("TEST LIST SLICE BELOW: ")
             #removes the elements of the views and the time from the list
             string_list_indiv.pop()
             string_list_indiv.pop()
 
-            print(string_list_indiv[len_first_line:])
+            row_records_list = []
+            #need to get the number of rows here in order to create np array and reshape
+            for i in range(0, len(string_list_indiv), len_first_line):
+                row_records_list += [string_list_indiv[i:i + len_first_line]]
 
-            df = pd.DataFrame(np.array(string_list_indiv[len_first_line:]).reshape(lines_num-3, len_first_line), columns=first_line_list)
+            print("Row Records List")
+            print(row_records_list)
+            len_rows = len(row_records_list)
+
+            #the string without the columns headers
+            #print(string_list_indiv[len_first_line:])
+
+            df = pd.DataFrame(np.array(string_list_indiv[len_first_line:]).reshape(len_rows-1, len_first_line), columns=first_line_list)
 
 
 
@@ -178,7 +200,7 @@ while True:
     driver.execute_script(scroll)  # execute the js scroll
     time.sleep(2)  # wait for page to load new content
 
-    if message_count > 2:
+    if message_count > 3:
         break
 
 outFile = open('dictionary.py', 'w')
@@ -189,9 +211,12 @@ print("Message Count: ")
 print(message_count)
 print(str(final_dictionary))
 
+#Log
 
+#9/27/2021
 
-
+#the problem is that the String List len is not accurate. it's breaking each row
+#need to figure out how to fix
 
 
 #Helpful links
