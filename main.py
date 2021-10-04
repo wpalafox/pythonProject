@@ -113,6 +113,12 @@ while True:
             print(message_count)
             #gets the length of the header, category line
             first_line = message.text.partition('\n')[0]
+            #Place logic to handles different separaters
+            #separators such as | or space or ,
+            #If len(message.split()) > len(message.spllit(,):
+            #  first_line_list = first_line.split()
+
+
             first_line_list = first_line.split(',')
             len_first_line = len(first_line_list)
 
